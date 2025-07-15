@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+      - name: ollama
+        image: ollama-mistral:local
+        imagePullPolicy: Never
+        env:
+        - name: OLLAMA_HOST
+          value: "0.0.0.0:11434"
+        ports:
+        - containerPort: 11434
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "sleep 5 && while ! curl -f http://localhost:11434/api/version; do sleep 2; done && ollama pull mistral"]
